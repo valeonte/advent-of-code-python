@@ -5,6 +5,9 @@ Created on Sun Dec  1 06:54:36 2019
 @author: Eftychios
 """
 from math import floor
+import os
+
+os.chdir("C:/Repos/advent-of-code-python")
 
 def calc_fuel_required(mass: int, recursive: bool = False) -> int:
     fuel = floor(mass/3) - 2
@@ -21,7 +24,7 @@ def calc_fuel_required(mass: int, recursive: bool = False) -> int:
         return fuel
 
 
-with open("2019/day-1-input.txt", "r") as f:
+with open("2019/inputs/day1.txt", "r") as f:
     contents = f.read()
 
 all_numbers = [int(stritem)for stritem in contents.split("\n")]
@@ -34,3 +37,4 @@ all_fuels_rec = [calc_fuel_required(mass, True) for mass in all_numbers]
 answer_2 = sum(all_fuels_rec)
 
 print(answer_1, answer_2)
+
