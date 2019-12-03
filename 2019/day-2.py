@@ -6,7 +6,6 @@ Created on Mon Dec  2 20:29:11 2019
 """
 import os
 from typing import List, Callable
-from enum import Enum
 
 os.chdir("C:/Repos/advent-of-code-python")
 
