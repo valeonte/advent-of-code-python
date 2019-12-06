@@ -6,8 +6,7 @@ Created on Tue Dec  3 20:16:16 2019
 """
 
 import os
-import sys
-from typing import Iterator, Tuple, Set, Dict
+from typing import Iterator, Tuple, Dict
 
 os.chdir("C:/Repos/advent-of-code-python")
 
