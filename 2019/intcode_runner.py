@@ -5,7 +5,7 @@ Created on Sat Dec  7 09:07:13 2019
 @author: Eftychios
 """
 
-from typing import List
+from typing import List, Tuple, Iterator
 
 
 class IntcodeRunner:
@@ -124,7 +124,7 @@ class IntcodeRunner:
         return op_address + 2
     
         
-    def print_output(self, op_address: int) -> int:
+    def get_output(self, op_address: int) -> Tuple[int, int]:
         opcode = self.program[op_address]
         if opcode % 100 != 4:
             raise Exception("Not output operation!!")
@@ -134,10 +134,12 @@ class IntcodeRunner:
         
         #print(f"Output {op_address}: {output}")
 
-        return op_address + 2
-    
+        return (op_address + 2, output)
     
     def run(self) -> List[int]:
+        return list(self.iter_run())
+    
+    def iter_run(self) -> Iterator[int]:
         
         i = 0
         while True:
@@ -148,7 +150,7 @@ class IntcodeRunner:
             opcode = op % 100
             # exit
             if opcode == 99:
-                return self.outputs
+                return
             
             # addition
             if opcode == 1:
@@ -158,7 +160,8 @@ class IntcodeRunner:
             elif opcode == 3:
                 i = self.key_input(i)
             elif opcode == 4:
-                i = self.print_output(i)
+                (i, output) = self.get_output(i)
+                yield output
             elif opcode == 5:
                 i = self.jump_if_true(i)
             elif opcode == 6:
