@@ -6,9 +6,11 @@ Created on Fri Dec  6 19:49:57 2019
 """
 
 import os
+os.chdir("C:/Repos/advent-of-code-python")
+
+
 from typing import List, Dict, Iterator, Set
 
-os.chdir("C:/Repos/advent-of-code-python")
 
 
 class Planet:
