@@ -6,8 +6,6 @@ Created on Sat Dec  7 21:28:26 2019
 """
 
 import os
-from typing import Iterator
-from numpy import sign
 os.chdir("C:/Repos/advent-of-code-python")
 
 class HexNode:
