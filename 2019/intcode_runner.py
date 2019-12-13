@@ -16,12 +16,13 @@ class ParameterMode(Enum):
 
 class IntcodeRunner:
     def __init__(self, program: List[int], inputs: List[int] = None,
-                 extend: int = 0):
+                 extend: int = 0, print_output: bool = False):
         self.program = program + [0]*extend
         self.inputs = inputs
         self.input_counter = 0
         self.outputs = []
         self.relative_base = 0
+        self.print_output = print_output
         
     def add(self, op_address: int) -> int:
         opcode = self.program[op_address]
@@ -163,6 +164,8 @@ class IntcodeRunner:
             self.input_counter += 1
         else:
             inp = input(f"Please enter program input {op_address}: ")
+            if inp == "quit":
+                raise Exception("Quit requested!")
                 
         parameter_mode = self.get_parameter_mode(opcode, 1)
         if parameter_mode == ParameterMode.Value:
@@ -185,7 +188,8 @@ class IntcodeRunner:
         output = self.get_parameter(op_address, opcode, 1)
         self.outputs.append(output)
         
-        #print(f"Output {op_address}: {output}")
+        if self.print_output:
+            print(f"Output {op_address}: {output}")
 
         return (op_address + 2, output)
     
