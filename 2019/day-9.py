@@ -8,12 +8,12 @@ Created on Mon Dec  9 20:16:28 2019
 import os
 from typing import Iterator, Tuple, Dict
 
+os.chdir("C:/Repos/advent-of-code-python/2019")
+
 from intcode_runner import IntcodeRunner
 
 
-os.chdir("C:/Repos/advent-of-code-python")
-
-with open("2019/inputs/day9.txt", "r") as f:
+with open("inputs/day9.txt", "r") as f:
     inp = [int(i) for i in f.read().split(',')]
 
 runner = IntcodeRunner(inp, inputs=[1], extend=1000000)
