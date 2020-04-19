@@ -6,7 +6,6 @@ Created on Sun Dec 15 20:46:17 2019
 """
 
 import os
-import time
 from typing import Iterator, Tuple, Dict
 
 os.chdir("C:/Repos/advent-of-code-python/2017")
