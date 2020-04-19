@@ -7,8 +7,10 @@ Created on Sun Apr 19 10:29:14 2020
 
 import os
 import time
+import re
 
 from dataclasses import dataclass
+from typing import Set
 
 os.chdir("C:/Repos/advent-of-code-python/2017")
 
@@ -16,114 +18,102 @@ with open("inputs/day20.txt", "r") as f:
     inp = f.read()
 
 
+@dataclass
+class Coords:
+    x: int
+    y: int
+    z: int
+
+    def distance(self):
+        return abs(self.x) + abs(self.y) + abs(self.z)
+
+
+@dataclass
+class Particle:
+    pid: int
+    p: Coords
+    v: Coords
+    a: Coords
+
+    def distance(self):
+        return self.p.distance()
 
 
 class Gpu:
     def __init__(self, particles: str):
-        self.routing_diagram = diagram.split('\n')
-        self.width = max([len(row) for row in self.routing_diagram])
-        self.height = len(self.routing_diagram)
-        self.cur_row = 0
-        self.cur_char = self.routing_diagram[0].find('|')
-        self.direction = 'S'
-        self.step_counter = 1
+        pattern = ('^p=<([-\\d]+),([-\\d]+),([-\\d]+)>, '
+                   'v=<([-\\d]+),([-\\d]+),([-\\d]+)>, '
+                   'a=<([-\\d]+),([-\\d]+),([-\\d]+)>$')
 
-    def try_move_south(self) -> bool:
-        if (self.height > self.cur_row + 1 and
-                len(self.routing_diagram[self.cur_row + 1]) > self.cur_char and
-                self.routing_diagram[self.cur_row + 1][self.cur_char] != ' '):
-            self.cur_row += 1
-            return True
+        self.particles = []
+        idx = 0
+        for part in particles.split('\n'):
+            r = re.search(pattern, part)
+            p = Coords(int(r.group(1)), int(r.group(2)), int(r.group(3)))
+            v = Coords(int(r.group(4)), int(r.group(5)), int(r.group(6)))
+            a = Coords(int(r.group(7)), int(r.group(8)), int(r.group(9)))
+            self.particles.append(Particle(idx, p, v, a))
+            idx += 1
 
-        return False
+    def move_particle(self, particle: Particle):
+        particle.v.x += particle.a.x
+        particle.v.y += particle.a.y
+        particle.v.z += particle.a.z
 
-    def try_move_north(self) -> bool:
-        if (self.cur_row > 0 and
-                len(self.routing_diagram[self.cur_row - 1]) > self.cur_char and
-                self.routing_diagram[self.cur_row - 1][self.cur_char] != ' '):
-            self.cur_row -= 1
-            return True
+        particle.p.x += particle.v.x
+        particle.p.y += particle.v.y
+        particle.p.z += particle.v.z
 
-        return False
+    def move(self, moves: int = 1,
+             remove_collided: bool = False):
+        for _ in range(0, moves):
+            for particle in self.particles:
+                self.move_particle(particle)
 
-    def try_move_east(self) -> bool:
-        if (len(self.routing_diagram[self.cur_row]) > self.cur_char + 1 and
-                self.routing_diagram[self.cur_row][self.cur_char + 1] != ' '):
-            self.cur_char += 1
-            return True
+            if remove_collided:
+                self.remove_collided()
 
-        return False
+    def remove_collided(self):
+        coll = self.locate_collided()
+        if len(coll) > 0:
+            print('Removing collided', coll)
 
-    def try_move_west(self) -> bool:
-        if (self.cur_char > 0 and
-                self.routing_diagram[self.cur_row][self.cur_char - 1] != ' '):
-            self.cur_char -= 1
-            return True
+            self.particles = [p
+                              for p in self.particles
+                              if p.pid not in coll]
 
-        return False
-
-    def print_map(self):
-        for (idx, row) in enumerate(self.routing_diagram):
-            if idx == self.cur_row:
-                print(row[0:self.cur_char] + '#' + row[self.cur_char + 1:])
-            else:
-                print(row)
-
-    def try_move(self) -> bool:
-        if self.direction == 'S':
-            if self.try_move_south():
-                return True
-            if self.try_move_east():
-                self.direction = 'E'
-                return True
-            self.direction = 'W'
-            return self.try_move_west()
-
-        if self.direction == 'N':
-            if self.try_move_north():
-                return True
-            if self.try_move_east():
-                self.direction = 'E'
-                return True
-            self.direction = 'W'
-            return self.try_move_west()
-
-        if self.direction == 'W':
-            if self.try_move_west():
-                return True
-            if self.try_move_north():
-                self.direction = 'N'
-                return True
-            self.direction = 'S'
-            return self.try_move_south()
-
-        if self.direction == 'E':
-            if self.try_move_east():
-                return True
-            if self.try_move_north():
-                self.direction = 'N'
-                return True
-            self.direction = 'S'
-            return self.try_move_south()
-
-    def run(self, debug_delay: int = 0) -> str:
-        ret = ''
-        paths = '|-+'
-        while self.try_move():
-            self.step_counter += 1
-            ch = self.routing_diagram[self.cur_row][self.cur_char]
-            if ch not in paths:
-                ret += ch
-
-            if debug_delay > 0:
-                self.print_map()
-                time.sleep(debug_delay)
-
+    def locate_collided(self) -> Set[int]:
+        ret = set()
+        for idx, particle in enumerate(self.particles):
+            for other in self.particles[idx + 1:]:
+                if other.pid == particle.pid:
+                    continue
+                if other.p == particle.p:
+                    ret.add(particle.pid)
+                    ret.add(other.pid)
         return ret
 
+    def get_closest(self):
+        closest_distance = 999999999999
+        closest_node = -1
 
-r = Router(inp)
-print(r.run())
+        for particle in self.particles:
+            dist = particle.distance()
+            if dist < closest_distance:
+                closest_distance = dist
+                closest_node = particle.pid
+
+        return closest_node, closest_distance
+
+
+particles = """p=<3,0,0>, v=<2,0,0>, a=<-1,0,0>
+p=<4,0,0>, v=<0,0,0>, a=<-2,0,0>"""
+
+g = Gpu(inp)
+while True:
+    g.move(100, True)
+    print(g.get_closest())
+    time.sleep(0.4)
 
 
 if __name__ == '__main__':
@@ -133,78 +123,24 @@ if __name__ == '__main__':
     class TestAll(unittest.TestCase):
 
         def test_init(self):
-            r = Router("""    |
-   |""")
+            particles = """p=<3,0,0>, v=<2,0,0>, a=<-1,0,0>
+p=<4,0,0>, v=<0,0,0>, a=<-2,0,0>"""
 
-            self.assertEqual(r.width, 5)
-            self.assertEqual(r.height, 2)
-            self.assertEqual(r.cur_row, 0)
-            self.assertEqual(r.cur_char, 4)
+            g = Gpu(particles)
 
-        def test_try_move_south_1(self):
-            r = Router("""    |
-    |""")
+            self.assertEqual(len(g.particles), 2)
+            self.assertEqual(g.particles[0].p.x, 3)
+            self.assertEqual(g.particles[1].a.x, -2)
 
-            self.assertTrue(r.try_move_south())
-            self.assertEqual(r.cur_row, 1)
+        def test_move(self):
+            particles = """p=<3,0,0>, v=<2,0,0>, a=<-1,0,0>
+p=<4,0,0>, v=<0,0,0>, a=<-2,0,0>"""
 
-        def test_try_move_south_2(self):
-            r = Router("""    |
-   |""")
+            g = Gpu(particles)
+            g.move()
 
-            self.assertFalse(r.try_move_south())
-
-        def test_try_move_north(self):
-            r = Router("""    |
-    |""")
-
-            r.try_move_south()
-            self.assertTrue(r.try_move_north())
-            self.assertEqual(r.cur_row, 0)
-
-        def test_try_move_east_1(self):
-            r = Router("""    |
-    +-""")
-
-            r.try_move_south()
-            self.assertTrue(r.try_move_east())
-            self.assertEqual(r.cur_row, 1)
-            self.assertEqual(r.cur_char, 5)
-
-        def test_try_move_east_2(self):
-            r = Router("""    |
-    +""")
-
-            r.try_move_south()
-            self.assertFalse(r.try_move_east())
-
-        def test_try_move_west_1(self):
-            r = Router("""    |
-   -+""")
-
-            r.try_move_south()
-            self.assertTrue(r.try_move_west())
-            self.assertEqual(r.cur_row, 1)
-            self.assertEqual(r.cur_char, 3)
-
-        def test_try_move_west_2(self):
-            r = Router("""    |
-    +""")
-
-            r.try_move_south()
-            self.assertFalse(r.try_move_west())
-
-        def test_run(self):
-            inp = """     |
-     |  +--+
-     A  |  C
- F---|----E|--+
-     |  |  |  D
-     +B-+  +--+ """
-
-            r = Router(inp)
-            self.assertEqual(r.run(), 'ABCDEF')
-            self.assertEqual(r.step_counter, 38)
-
+            self.assertEqual(g.particles[0].p.x, 4)
+            self.assertEqual(g.particles[1].v.x, -2)
+            self.assertEqual(g.particles[1].a.x, -2)
 
     unittest.main()
