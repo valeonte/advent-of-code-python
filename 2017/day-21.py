@@ -6,14 +6,8 @@ Created on Fri Apr 24 11:36:40 2020
 """
 
 import os
-import time
-import re
 
 import numpy as np
-
-
-from dataclasses import dataclass
-from typing import Set
 
 os.chdir("C:/Repos/advent-of-code-python/2017")
 
