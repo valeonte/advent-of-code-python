@@ -47,8 +47,6 @@ class Policy:
                 (self.character == input_string[self.count_max - 1]))
 
 
-
-
 inp = []
 
 inp = inp_string.split("\n")
@@ -72,4 +70,3 @@ for line in inp:
 
 print('Answer 1:', passed_1)
 print('Answer 2:', passed_2)
-
