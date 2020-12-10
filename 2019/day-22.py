@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """
+Advent of Code 2019, day 22.
+
 Created on Sat Dec 28 12:17:29 2019
 
 @author: Eftychios
@@ -12,11 +14,12 @@ from typing import Iterator, Tuple, Dict, List
 
 
 class DeckShuffler:
+    """The shuffler class."""
 
     def deal_into_new_stack(self,
                             deck: List[int]) -> Iterator[Tuple[int, int]]:
-
-        #print(f'Dealing into new stack')
+        """Deal into a new stack."""
+        # print(f'Dealing into new stack')
 
         size = len(deck)
 
@@ -28,8 +31,8 @@ class DeckShuffler:
     def cut_n_cards(self,
                     deck: List[int],
                     n: int) -> Iterator[Tuple[int, int]]:
-
-        #print(f'Cutting {n}')
+        """Cut n cards."""
+        # print(f'Cutting {n}')
 
         if n > 0:
             cut_off = n
@@ -45,8 +48,8 @@ class DeckShuffler:
     def deal_with_increment(self,
                             deck: List[int],
                             inc: int) -> Iterator[Tuple[int, int]]:
-
-        #print(f'Dealing with increment {inc}')
+        """Deal with increment inc."""
+        # print(f'Dealing with increment {inc}')
 
         last_index = -inc
         for card in deck:
@@ -57,17 +60,18 @@ class DeckShuffler:
     def do_shuffle_command(self,
                            deck: List[int],
                            command: str) -> List[int]:
+        """Run shuffle command."""
         iterator = None
         if command == "deal into new stack":
             iterator = self.deal_into_new_stack(deck)
         else:
-            cutex = "^cut ([\d-]+)$"
+            cutex = r'^cut ([\d-]+)$'
             m = re.search(cutex, command)
             if m:
                 n = int(m.group(1))
                 iterator = self.cut_n_cards(deck, n)
             else:
-                incex = "^deal with increment (\d+)$"
+                incex = r'^deal with increment (\d+)$'
                 m = re.search(incex, command)
                 inc = int(m.group(1))
                 iterator = self.deal_with_increment(deck, inc)
@@ -84,6 +88,7 @@ class DeckShuffler:
     def get_new_index_new_stack(self,
                                 deck_size: int,
                                 card_index: int) -> int:
+
         return deck_size - card_index - 1
 
     def get_prev_index_new_stack(self,
@@ -410,108 +415,3 @@ if __name__ == "__main__":
                                                            "deal with increment 3"), card)
 
     unittest.main()
-
-
-
-
-self.get_prev_index_deal_with_increment(deck_size, card_index, 12)
-self.get_prev_index_new_stack(deck_size, card_index)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 62)
-self.get_prev_index_cut_n_cards(deck_size, card_index, -9633)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 66)
-self.get_prev_index_cut_n_cards(deck_size, card_index, -2776)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 7)
-self.get_prev_index_cut_n_cards(deck_size, card_index, 8053)
-self.get_prev_index_new_stack(deck_size, card_index)
-self.get_prev_index_cut_n_cards(deck_size, card_index, 4283)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 56)
-self.get_prev_index_new_stack(deck_size, card_index)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 33)
-self.get_prev_index_cut_n_cards(deck_size, card_index, -8783)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 57)
-self.get_prev_index_cut_n_cards(deck_size, card_index, -7349)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 46)
-self.get_prev_index_cut_n_cards(deck_size, card_index, -412)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 14)
-self.get_prev_index_cut_n_cards(deck_size, card_index, 5612)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 62)
-self.get_prev_index_cut_n_cards(deck_size, card_index, -7555)
-self.get_prev_index_new_stack(deck_size, card_index)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 13)
-self.get_prev_index_cut_n_cards(deck_size, card_index, -1983)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 19)
-self.get_prev_index_cut_n_cards(deck_size, card_index, -8998)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 50)
-self.get_prev_index_cut_n_cards(deck_size, card_index, 8131)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 29)
-self.get_prev_index_new_stack(deck_size, card_index)
-self.get_prev_index_cut_n_cards(deck_size, card_index, -5300)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 75)
-self.get_prev_index_cut_n_cards(deck_size, card_index, -3297)
-self.get_prev_index_new_stack(deck_size, card_index)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 21)
-self.get_prev_index_cut_n_cards(deck_size, card_index, 6945)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 32)
-self.get_prev_index_new_stack(deck_size, card_index)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 23)
-self.get_prev_index_cut_n_cards(deck_size, card_index, 9409)
-self.get_prev_index_new_stack(deck_size, card_index)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 30)
-self.get_prev_index_cut_n_cards(deck_size, card_index, 2910)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 20)
-self.get_prev_index_cut_n_cards(deck_size, card_index, -9537)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 13)
-self.get_prev_index_new_stack(deck_size, card_index)
-self.get_prev_index_cut_n_cards(deck_size, card_index, 7294)
-self.get_prev_index_new_stack(deck_size, card_index)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 23)
-self.get_prev_index_cut_n_cards(deck_size, card_index, 4222)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 23)
-self.get_prev_index_cut_n_cards(deck_size, card_index, 3754)
-self.get_prev_index_new_stack(deck_size, card_index)
-self.get_prev_index_cut_n_cards(deck_size, card_index, 3867)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 73)
-self.get_prev_index_cut_n_cards(deck_size, card_index, -7026)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 10)
-self.get_prev_index_cut_n_cards(deck_size, card_index, 4009)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 48)
-self.get_prev_index_cut_n_cards(deck_size, card_index, -1754)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 63)
-self.get_prev_index_cut_n_cards(deck_size, card_index, 5774)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 60)
-self.get_prev_index_cut_n_cards(deck_size, card_index, -8349)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 42)
-self.get_prev_index_cut_n_cards(deck_size, card_index, -2316)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 21)
-self.get_prev_index_cut_n_cards(deck_size, card_index, -6859)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 59)
-self.get_prev_index_cut_n_cards(deck_size, card_index, 6080)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 56)
-self.get_prev_index_cut_n_cards(deck_size, card_index, 2873)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 3)
-self.get_prev_index_cut_n_cards(deck_size, card_index, -1038)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 61)
-self.get_prev_index_cut_n_cards(deck_size, card_index, -5330)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 5)
-self.get_prev_index_cut_n_cards(deck_size, card_index, 9150)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 44)
-self.get_prev_index_cut_n_cards(deck_size, card_index, -8095)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 40)
-self.get_prev_index_new_stack(deck_size, card_index)
-self.get_prev_index_cut_n_cards(deck_size, card_index, -2391)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 25)
-self.get_prev_index_cut_n_cards(deck_size, card_index, 4074)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 32)
-self.get_prev_index_cut_n_cards(deck_size, card_index, -9939)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 59)
-self.get_prev_index_new_stack(deck_size, card_index)
-self.get_prev_index_cut_n_cards(deck_size, card_index, 5290)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 50)
-self.get_prev_index_cut_n_cards(deck_size, card_index, -337)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 27)
-self.get_prev_index_new_stack(deck_size, card_index)
-self.get_prev_index_cut_n_cards(deck_size, card_index, -4435)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 23)
-self.get_prev_index_cut_n_cards(deck_size, card_index, 6859)
-self.get_prev_index_deal_with_increment(deck_size, card_index, 41)
-
