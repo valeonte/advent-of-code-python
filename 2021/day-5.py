@@ -9,8 +9,6 @@ Created on Sun Dec  5 16:50:12 2021
 
 import os
 
-import numpy as np
-
 from dataclasses import dataclass
 
 
