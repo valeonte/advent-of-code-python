@@ -9,7 +9,6 @@ Created on Mon Dec 13 19:46:35 2021
 
 import os
 
-from typing import List
 
 os.chdir("C:/Repos/advent-of-code-python/2021")
 
