@@ -46,6 +46,9 @@ class Amphipod:
                         ) -> Iterator[Tuple[np.array, int]]:
         """Get amphipod's valid moves in given board."""
         brd = board.copy()
+        # Not moving is always an option
+        yield brd, 0
+
         brd[self.row, self.col] = 9
         max_row, max_col = brd.shape
         max_row = max_row - 1
