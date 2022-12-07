@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Advent of Code 2022 day 5.
+Advent of Code 2022 day 6.
 
 Created on Tue Dec  6 21:43:51 2022
 
