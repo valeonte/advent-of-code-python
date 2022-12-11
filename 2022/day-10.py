@@ -195,7 +195,7 @@ for cycle, X in get_cycles(inp_string):
 print('Answer 1:', strength_sum)
 
 
-print('Answer 2:')
+print('\nAnswer 2:')
 output = ''
 for cycle, X in get_cycles(inp_string):
     pos = cycle % 40
