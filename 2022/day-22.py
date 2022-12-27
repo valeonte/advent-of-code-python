@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Advent of Code 2022 day 20.
+Advent of Code 2022 day 22.
 
-Created on Sun Dec 25 10:18:42 2022
+Created on Sun Dec 25 11:18:42 2022
 
 @author: Eftychios
 """
