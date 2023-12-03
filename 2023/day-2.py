@@ -9,7 +9,6 @@ Created on Sat Dec 02 2023
 import os
 import re
 
-from collections import namedtuple
 
 os.chdir("C:/Repos/advent-of-code-python/2023")
 
