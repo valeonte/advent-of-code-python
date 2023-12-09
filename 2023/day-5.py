@@ -7,11 +7,9 @@ Created on Tue Dec 05 2023
 """
 
 import os
-import re
 
 from typing import List
 from dataclasses import dataclass
-from collections import namedtuple
 
 os.chdir("C:/Repos/advent-of-code-python/2023")
 
