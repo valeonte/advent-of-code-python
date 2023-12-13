@@ -1,7 +1,7 @@
 """
 Advent of Code 2023 day 12.
 
-Created on Mon Dec 12 2023
+Created on Tue Dec 12 2023
 
 @author: Eftychios
 """
