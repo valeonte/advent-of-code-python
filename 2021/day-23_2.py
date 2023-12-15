@@ -27,16 +27,19 @@ inp_string = """#############
 
 inps = inp_string.split('\n')
 
-inps.insert(3, "  #D#C#B#A#")
-inps.insert(4, "  #D#B#A#C#")
+#inps.insert(3, "  #D#C#B#A#")
+#inps.insert(4, "  #D#B#A#C#")
 
-inps = """#############
-#...........#
-###B#A#C#D###
-  #A#B#C#D#
-  #A#B#C#D#
-  #A#B#C#D#
-  #########""".split('\n')
+inps.insert(4, "  #A#B#C#D#")
+inps.insert(4, "  #A#B#C#D#")
+
+# inps = """#############
+# #...........#
+# ###B#A#D#C###
+#   #A#B#C#D#
+#   #A#B#C#D#
+#   #A#B#C#D#
+#   #########""".split('\n')
 
 
 room_cols = {3, 5, 7, 9}
@@ -154,10 +157,11 @@ def get_valid_moves(board: np.array, amph: Tuple[int, int]) -> Iterator[Tuple[in
         # at this point, room is either empty of half full
         moves = moves_to_dest(board, amph, (2, amphi_room))  # we get moves to get into the room
         # move as deep into the room as possible in one move
-        for i in range(5, 1, -1):
-            if board[i, amphi_room] == 0:
-                yield (i, amphi_room, moves + i - 2)
-                break
+        if moves > 0:
+            for i in range(5, 1, -1):
+                if board[i, amphi_room] == 0:
+                    yield (i, amphi_room, moves + i - 2)
+                    break
         return
     
     # in room, before its original move
@@ -168,7 +172,7 @@ def get_valid_moves(board: np.array, amph: Tuple[int, int]) -> Iterator[Tuple[in
     if amph[1] == amphi_room:
         # in its room, check the tiles below
         all_same_below = True
-        for i in range(amph[1] + 1, 6):
+        for i in range(amph[0] + 1, 6):
             if get_amphipod_type(board[i, amphi_room]) != amphi_type:
                 all_same_below = False
                 break
@@ -180,6 +184,8 @@ def get_valid_moves(board: np.array, amph: Tuple[int, int]) -> Iterator[Tuple[in
     while board[1, j] == 0:
         if j not in room_cols:
             moves = moves_to_dest(board, amph, (1, j))
+            if moves < 0:
+                raise Exception('noo')
             yield (1, j, moves)
         j -= 1
     
@@ -187,6 +193,8 @@ def get_valid_moves(board: np.array, amph: Tuple[int, int]) -> Iterator[Tuple[in
     while board[1, j] == 0:
         if j not in room_cols:
             moves = moves_to_dest(board, amph, (1, j))
+            if moves < 0:
+                raise Exception('noo')
             yield (1, j, moves)
         j += 1
 
@@ -205,12 +213,15 @@ best_cost_so_far: int = 1_000_000_000_000
 grand_loop_count = 0
 
 def get_all_solutions(board: np.array, moved: Dict[int, int], cost_so_far: int = 0) -> Iterator[int]:
-    print_board(board)
+    # print_board(board)
     if board_is_solved(board):
         yield cost_so_far
         return
     global grand_loop_count
     grand_loop_count += 1
+    if grand_loop_count % 100000 == 0:
+        print("Loop", grand_loop_count, 'best cost', best_cost_so_far)
+        print_board(board)
 
     for amphipod, moves_made in moved.items():
         if cost_so_far >= best_cost_so_far - 1:
@@ -223,6 +234,7 @@ def get_all_solutions(board: np.array, moved: Dict[int, int], cost_so_far: int =
         valid_moves = list(get_valid_moves(board, amph))
         if len(valid_moves) == 0:
             continue
+
         if len(valid_moves) > 1:
             valid_moves = sorted(valid_moves, key=lambda x: x[2])
         move_cost = 10 ** get_amphipod_type(amphipod)
