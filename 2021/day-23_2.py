@@ -10,7 +10,8 @@ Created on Thu Dec 23 21:31:11 2021
 import numpy as np
 
 from typing import Iterator, Tuple, Dict
-
+from time import time
+from functools import cache
 
 inp_string = """#############
 #...........#
@@ -18,20 +19,20 @@ inp_string = """#############
   #A#D#C#A#
   #########"""
 
-# inp_string = """#############
-# #...........#
-# ###C#C#A#B###
-#   #D#D#B#A#
-#   #########"""
+inp_string = """#############
+#...........#
+###C#C#A#B###
+  #D#D#B#A#
+  #########"""
 
 
 inps = inp_string.split('\n')
 
-#inps.insert(3, "  #D#C#B#A#")
-#inps.insert(4, "  #D#B#A#C#")
+inps.insert(3, "  #D#C#B#A#")
+inps.insert(4, "  #D#B#A#C#")
 
-inps.insert(4, "  #A#B#C#D#")
-inps.insert(4, "  #A#B#C#D#")
+# inps.insert(4, "  #A#B#C#D#")
+# inps.insert(4, "  #A#B#C#D#")
 
 # inps = """#############
 # #...........#
@@ -43,7 +44,7 @@ inps.insert(4, "  #A#B#C#D#")
 
 
 room_cols = {3, 5, 7, 9}
-
+amphipods = dict()
 board = None
 for row, inp in enumerate(inps):
     if board is None:
@@ -60,6 +61,7 @@ for row, inp in enumerate(inps):
                 amphi = amphi + 1
 
             board[row, col] = amphi
+            amphipods[amphi] = (row, col)
     col += 1
     while col < board.shape[1]:
         board[row, col] = -1
@@ -134,23 +136,30 @@ def moves_to_dest(board: np.array, start: Tuple[int, int], dest: Tuple[int, int]
         if board[i, start[1]] != 0:
             return -1
 
-    hm = moves_to_hallway_dest(board, (1, start[1]), dest)
+    hm = moves_to_hallway_dest(board, (1, start[1]), (1, dest[1]))
     if hm < 0:
         return -1
+    if dest[0] > 1:
+        # we have to move down as well
+        for i in range(2, dest[0] + 1):
+            hm += 1
+            if board[i, dest[1]] != 0:
+                return -1
 
     return moves + hm
+    
 
 
 def get_valid_moves(board: np.array, amph: Tuple[int, int]) -> Iterator[Tuple[int, int, int]]:
     """Get amphipod's valid moves in given board. Returns new position and moves taken."""
     amphi = board[amph]
-    amphi_type = get_amphipod_type(amphi)
+    amphi_type = amphicache[amphi]
     amphi_room = amphi_type * 2 + 3
 
     if amph[0] == 1:  # in hallway
         # can only go directly in its room
         for i in range(2, 6):
-            if board[i, amphi_room] != 0 and get_amphipod_type(board[i, amphi_room]) != amphi_type:
+            if board[i, amphi_room] != 0 and amphicache[board[i, amphi_room]] != amphi_type:
                 # there is irrelevant amphipod in target room, can't move there yet
                 return
         # first get to the room col
@@ -173,12 +182,30 @@ def get_valid_moves(board: np.array, amph: Tuple[int, int]) -> Iterator[Tuple[in
         # in its room, check the tiles below
         all_same_below = True
         for i in range(amph[0] + 1, 6):
-            if get_amphipod_type(board[i, amphi_room]) != amphi_type:
+            if amphicache[board[i, amphi_room]] != amphi_type:
                 all_same_below = False
                 break
         if all_same_below:
             # in its room with same underneath, no reason to move
             return
+
+    # check if it can go straight in its destination cell
+    moves = moves_to_dest(board, amph, (2, amphi_room))
+    if moves > 0:
+        lowest_available = 2
+        for row in range(3, 6):
+            a = board[row, amphi_room]
+            if a == 0:
+                lowest_available += 1
+                continue
+            if amphicache[a] == amphi_type:
+                continue
+            lowest_available = -1
+            break
+        if lowest_available > 0:
+            yield (lowest_available, amphi_room, moves + lowest_available - 2)
+            return
+
 
     j = amph[1] - 1
     while board[1, j] == 0:
@@ -202,8 +229,9 @@ def get_valid_moves(board: np.array, amph: Tuple[int, int]) -> Iterator[Tuple[in
 def board_is_solved(board: np.array) -> bool:
     """Check whether board is solved."""
     for row in [2, 3, 4, 5]:
-        for col in [3, 5, 7, 9]:
-            if get_amphipod_type(board[row, col]) != (col - 3) // 2:
+        for col in room_cols:
+            val = board[row, col]
+            if val == 0 or amphicache[val] != (col - 3) // 2:
                 return False
 
     return True
@@ -211,16 +239,38 @@ def board_is_solved(board: np.array) -> bool:
 
 best_cost_so_far: int = 1_000_000_000_000
 grand_loop_count = 0
+start_time = time()
+
+
+def cost_infeasible(cost_so_far: int) -> int:
+    if best_cost_so_far == 1_000_000_000_000:
+        return False
+    min_cost = 0
+    max_avail = best_cost_so_far - cost_so_far
+    for amphi in range(16, 0, -1):
+        target_col = amphicache[amphi] * 2 + 3
+        cur_pos = amphipods[amphi]
+        if target_col == cur_pos[1]:
+            continue
+        min_moves = cur_pos[0] + abs(cur_pos[1] - target_col)
+        min_cost += min_moves * 10 ** amphicache[amphi]
+        if min_cost >= max_avail:
+            return True
+    return False
+
 
 def get_all_solutions(board: np.array, moved: Dict[int, int], cost_so_far: int = 0) -> Iterator[int]:
-    # print_board(board)
+    #print_board(board)
     if board_is_solved(board):
         yield cost_so_far
         return
     global grand_loop_count
     grand_loop_count += 1
-    if grand_loop_count % 100000 == 0:
-        print("Loop", grand_loop_count, 'best cost', best_cost_so_far)
+    if grand_loop_count % 1_000_000 == 0:
+        running = time() - start_time
+        rate = grand_loop_count / running
+        print("Loop", grand_loop_count, 'best cost', best_cost_so_far, 'running for', round(running / 60, 1),
+              "minutes at a rate of", round(rate, 1), "lps and cost so far", cost_so_far)
         print_board(board)
 
     for amphipod, moves_made in moved.items():
@@ -229,38 +279,46 @@ def get_all_solutions(board: np.array, moved: Dict[int, int], cost_so_far: int =
         if moves_made > 1:  # done moving
             continue
 
-        i, j = np.where(board == amphipod)
-        amph = (i[0], j[0])
+        amph = amphipods[amphipod]
         valid_moves = list(get_valid_moves(board, amph))
         if len(valid_moves) == 0:
             continue
 
         if len(valid_moves) > 1:
             valid_moves = sorted(valid_moves, key=lambda x: x[2])
-        move_cost = 10 ** get_amphipod_type(amphipod)
+        move_cost = 10 ** amphicache[amphipod]
 
         moved[amphipod] += 1
         for i, j, moves in valid_moves:
-            if cost_so_far >= best_cost_so_far - 1:
-                break
-            brd = board.copy()
-            brd[i, j] = amphipod
-            brd[amph] = 0
             new_cost_so_far = moves * move_cost + cost_so_far
             if new_cost_so_far >= best_cost_so_far - 1:
                 continue
-            for cost in get_all_solutions(brd, moved, new_cost_so_far):
-                yield cost
 
+            amphipods[amphipod] = (i, j)
+            if cost_infeasible(new_cost_so_far):
+                continue
+
+            brd = board
+            brd[i, j] = amphipod
+            brd[amph] = 0
+            for cost in get_all_solutions(brd, moved, new_cost_so_far):
+                brd[i, j] = 0
+                brd[amph] = amphipod
+                yield cost
+            brd[i, j] = 0
+            brd[amph] = amphipod
+
+        amphipods[amphipod] = amph
         moved[amphipod] -= 1
 
 
 print_board(board)
 moved = {a: 0 for a in range(1, 17)}
+amphicache = {a: get_amphipod_type(a) for a in range(1, 17)}
 for cost in get_all_solutions(board, moved):
     print('Got solution with cost', cost, 'after', grand_loop_count, 'loops')
     if cost < best_cost_so_far:
         best_cost_so_far = cost
 
-print('Answer 2:', best_cost_so_far, 'in', grand_loop_count, 'loops')
+print('Answer 2:', best_cost_so_far, 'in', grand_loop_count, 'loops and', round((time() - start_time)/60, 1), 'minutes')
 
