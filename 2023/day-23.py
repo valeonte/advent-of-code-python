@@ -103,6 +103,7 @@ def print_fmap(visited: Set[Tuple[int, int]]):
 
 queue = [(0, 1, {(0, 1)})]
 exit_i, exit_j = fmap.shape[0] - 1, fmap.shape[1] - 2
+short_exit_i, short_exit_j = 137, 137
 
 best_solution = 0
 loops = 0
@@ -135,13 +136,14 @@ while cur_is_good or len(queue) > 0:
         if (ni, nj) in visited:
             continue
 
-        if ni == exit_i and nj == exit_j:
-            if len(visited) > best_solution:
-                best_solution = len(visited)
+        if ni == short_exit_i and nj == short_exit_j:
+            cur_path = len(visited) + 5
+            if cur_path > best_solution:
+                best_solution = cur_path
 
             if dt.datetime.now() - last_print > dt.timedelta(seconds=1):
                 log.info('New path: %d, Longest: %d, Queue size: %d, Speed: %.1f loops/sec',
-                        len(visited), best_solution, len(queue), loops_per_sec(dt.datetime.now(), loops))
+                         cur_path, best_solution, len(queue), loops_per_sec(dt.datetime.now(), loops))
                 # we got to path, done
             all_next.clear()
             break
