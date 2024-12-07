@@ -8,17 +8,7 @@ Created on Wed Dec 04 2024 9:27:01 PM
 
 import os
 
-from enum import Enum
-
-class Dir(Enum):
-    N = 1
-    S = 2
-    W = 3
-    E = 4
-    NE = 5
-    NW = 6
-    SE = 7
-    SW = 8
+from common import Dir
 
 
 os.chdir("C:/Repos/advent-of-code-python/2024")

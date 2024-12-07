@@ -65,7 +65,7 @@ for row in inp:
         updates.append([int(r) for r in row.split(',')])
 
 
-# Almosts bubble sort
+# Almost bubble sort
 def is_valid_order(update: List[int]) -> bool:
     valid = True
     for i, u in enumerate(update[:-1]):
