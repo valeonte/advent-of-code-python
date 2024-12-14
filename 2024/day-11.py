@@ -9,6 +9,8 @@ Created on Fri Dec 13 2024 23:29:38 PM
 import os
 import math
 
+import datetime as dt
+
 from functools import lru_cache
 from typing import Dict, Iterable, List, Set, Tuple
 
@@ -22,36 +24,38 @@ with open("inputs/day-11.txt", "r") as f:
     inp_string = f.read()
 
 
-stones = [int(num) for num in inp_string.split(' ')]
+# stones = [int(num) for num in inp_string.split(' ')]
 
 
-blinks = 0
-while blinks < 25:
-    i = 0
-    while i < len(stones):
-        stone = stones[i]
-        if stone == 0:
-            stones[i] = 1
-        else:
-            num_digits = int(math.floor(math.log10(stone))) + 1
-            if num_digits % 2 == 0:
-                splitter = 10 ** (num_digits // 2)
-                stones[i] = stone // splitter
-                stones.insert(i + 1, stone % splitter)
-                i += 1
-            else:
-                stones[i] = stone * 2024
-        i += 1
-    blinks += 1
+# blinks = 0
+# while blinks < 25:
+#     i = 0
+#     while i < len(stones):
+#         stone = stones[i]
+#         if stone == 0:
+#             stones[i] = 1
+#         else:
+#             num_digits = int(math.floor(math.log10(stone))) + 1
+#             if num_digits % 2 == 0:
+#                 splitter = 10 ** (num_digits // 2)
+#                 stones[i] = stone // splitter
+#                 stones.insert(i + 1, stone % splitter)
+#                 i += 1
+#             else:
+#                 stones[i] = stone * 2024
+#         i += 1
+#     blinks += 1
 
 
-print('Answer 1:', len(stones))
+# print('Answer 1:', len(stones))
 
 
 # How each stone develops has nothing to do with neighbours.
 stones = [int(num) for num in inp_string.split(' ')]
 
-@lru_cache(maxsize=500)
+start = dt.datetime.now()
+
+@lru_cache(maxsize=50000)
 def get_length_of_number_in_blinks(stone: int, blinks: int) -> int:
     if blinks == 0:
         return 1
@@ -72,14 +76,12 @@ ret = 0
 for num in stones:
     ret += get_length_of_number_in_blinks(num, blinks=25)
 
-print('Redo answer 1:', ret)
+print('Redo answer 1:', ret, 'in', dt.datetime.now()-start)
 
+start = dt.datetime.now()
 
 ret = 0
 for num in stones:
     ret += get_length_of_number_in_blinks(num, blinks=75)
 
-print('Answer 1:', ret)
-    
-    
-    
+print('Answer 2:', ret, 'in', dt.datetime.now()-start)
