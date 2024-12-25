@@ -7,6 +7,7 @@ Created on Sat Dec 07 2024 8:15:56 AM
 """
 
 from enum import Enum
+from typing import Iterable, Tuple
 
 class Dir(Enum):
     N = 0
@@ -22,6 +23,13 @@ class Dir(Enum):
         new_d = (self.value + steps) % 8
         return Dir(new_d)
         
+
+def get_neighbours(x: int, y: int) -> Iterable[Tuple[int, int]]:
+    yield x-1, y
+    yield x+1, y
+    yield x, y-1
+    yield x, y+1
+
 
 if __name__ == "__main__":
 

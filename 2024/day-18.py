@@ -19,7 +19,7 @@ from typing import Dict, Iterable, List, Set, Tuple
 from dataclasses import dataclass
 from decimal import Decimal
 from tqdm import tqdm, trange
-from common import Dir
+from common import Dir, get_neighbours
 from itertools import product
 
 os.chdir("C:/Repos/advent-of-code-python/2024")
@@ -68,13 +68,6 @@ for line in inp_string.split('\n'):
         max_x = x
     if y > max_y:
         max_y = y
-
-
-def get_neighbours(x: int, y: int) -> Iterable[Tuple[int, int]]:
-    yield x-1, y
-    yield x+1, y
-    yield x, y-1
-    yield x, y+1
 
 
 corrupted = set(drops[:use_first])
